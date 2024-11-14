@@ -1,91 +1,210 @@
-//openai api
-// import express from 'express';
-// import * as dotenv from 'dotenv';
-// import { Configuration, OpenAIApi } from 'openai';
-
-// dotenv.config();
-
-// const router = express.Router();
-
-// const configuration = new Configuration({
-//   apiKey: process.env.OPENAI_API_KEY,
-// });
-
-// const openai = new OpenAIApi(configuration);
-
-// // Basic route to check if the API is working
-// router.route('/').get((req, res) => {
-//   res.status(200).json({ message: 'Hello from DALL-E!' });
-// });
-
-// // POST route to generate image based on a prompt
-// router.route('/').post(async (req, res) => {
-//   try {
-//     const { prompt } = req.body;
-
-//     // Call OpenAI's DALL-E model to create an image
-//     const aiResponse = await openai.createImage({
-//       prompt, // User-provided prompt
-//       n: 1, // Number of images to generate
-//       size: '1024x1024', // Image size
-//       response_format: 'b64_json', // Return image as base64 encoded JSON
-//     });
-
-//     // Extract the base64 image data from the response
-//     const image = aiResponse.data.data[0].b64_json;
-
-//     // Send the base64 image data back to the frontend
-//     res.status(200).json({ photo: image });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send(error?.response?.data?.error?.message || 'Something went wrong');
-//   }
-// });
-
-// export default router;
-
-//hugging fac api
 import express from 'express';
 import * as dotenv from 'dotenv';
-import axios from 'axios';
+import fetch from 'node-fetch';
 
 dotenv.config();
 
 const router = express.Router();
+const HF_API_URL = "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev";
+const HF_API_KEY = process.env.HF_API_KEY;
 
-// Hugging Face API endpoint for Stable Diffusion or other image generation models
-const HUGGING_FACE_API_URL = 'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2';
+// POST request to generate image
+// router.route('/').post(async (req, res) => {
+//   try {
+//     const { prompt } = req.body;
+//     console.log("Prompt:", prompt);  // Log the prompt for debugging
 
-// Basic route to check if the API is working
-router.route('/').get((req, res) => {
-  res.status(200).json({ message: 'Hello from Hugging Face API!' });
-});
+//     const response = await fetch(HF_API_URL, {
+//       method: 'POST',
+//       headers: {
+//         Authorization: `Bearer ${HF_API_KEY}`,
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({ inputs: prompt }),
+//     });
 
-// POST route to generate image based on a prompt
+//     // Check if the response is successful
+//     if (!response.ok) {
+//       throw new Error(`Failed to generate image: ${response.status} ${response.statusText}`);
+//     }
+
+//     // Check if the response is JSON
+//     const contentType = response.headers.get("content-type");
+//     if (contentType && contentType.includes("application/json")) {
+//       // If the response is JSON, parse it
+//       const result = await response.json();
+//       console.log("API result:", result);
+
+//       if (result.photo) {
+//         return res.status(200).json({ photo: result.photo });
+//       } else {
+//         return res.status(500).json({ error: 'No image data received from API' });
+//       }
+//     } else if (contentType && contentType.includes("image")) {
+//       // Handle binary data (image) using arrayBuffer() instead of buffer()
+//       const imageArrayBuffer = await response.arrayBuffer();
+//       console.log("Image received as binary data");
+//       return res.status(200).send(Buffer.from(imageArrayBuffer));  // Send the image data directly
+//     } else {
+//       throw new Error(`Unexpected content type: ${contentType}`);
+//     }
+
+//   } catch (error) {
+//     console.error('Error:', error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// });
+
+// router.route('/').post(async (req, res) => {
+//   try {
+//     const { prompt } = req.body;
+//     console.log("Prompt:", prompt);
+
+//     const response = await fetch(HF_API_URL, {
+//       method: 'POST',
+//       headers: {
+//         Authorization: `Bearer ${HF_API_KEY}`,
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({ inputs: prompt }),
+//     });
+
+//     // Check if the response is successful
+//     if (!response.ok) {
+//       throw new Error(`Failed to generate image: ${response.status} ${response.statusText}`);
+//     }
+
+//     // Get content type of the response
+//     const contentType = response.headers.get("content-type");
+
+//     if (contentType && contentType.includes("application/json")) {
+//       // Handle JSON response
+//       const result = await response.json();
+//       console.log("API result:", result);
+
+//       if (result.photo) {
+//         return res.status(200).json({ photo: result.photo });
+//       } else {
+//         return res.status(500).json({ error: 'No image data received from API' });
+//       }
+//     } else if (contentType && contentType.includes("image")) {
+//       // Handle image response (binary data)
+//       const imageArrayBuffer = await response.arrayBuffer();
+//       console.log("Image received as binary data");
+
+//       // Set appropriate content-type for image in the response
+//       res.setHeader("Content-Type", contentType);
+//       return res.status(200).send(Buffer.from(imageArrayBuffer));  // Send the image directly
+//     } else {
+//       throw new Error(`Unexpected content type: ${contentType}`);
+//     }
+
+//   } catch (error) {
+//     console.error('Error:', error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// });
+
+// router.route('/').post(async (req, res) => {
+//   try {
+//     const { prompt } = req.body;
+//     console.log("Prompt:", prompt);  // Log the prompt for debugging
+
+//     const response = await fetch(HF_API_URL, {
+//       method: 'POST',
+//       headers: {
+//         Authorization: `Bearer ${HF_API_KEY}`,
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({ inputs: prompt }),
+//     });
+
+//     // Check if the response is successful
+//     if (!response.ok) {
+//       throw new Error(`Failed to generate image: ${response.status} ${response.statusText}`);
+//     }
+
+//     const contentType = response.headers.get("content-type");
+
+//     if (contentType && contentType.includes("application/json")) {
+//       const result = await response.json();
+//       console.log("API result:", result);
+
+//       if (result.photo) {
+//         return res.status(200).json({ photo: result.photo });
+//       } else {
+//         return res.status(500).json({ error: 'No image data received from API' });
+//       }
+//     } else if (contentType && contentType.includes("image")) {
+//       const imageArrayBuffer = await response.arrayBuffer();
+//       console.log("Image received as binary data");
+
+//       // Determine image type based on content-type header
+//       const imageType = response.headers.get("content-type");
+
+//       // Set appropriate content-type for image in the response
+//       res.setHeader("Content-Type", imageType);
+//       return res.status(200).send(Buffer.from(imageArrayBuffer));  // Send the image directly
+//     } else {
+//       throw new Error(`Unexpected content type: ${contentType}`);
+//     }
+
+//   } catch (error) {
+//     console.error('Error:', error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// });
+
 router.route('/').post(async (req, res) => {
   try {
     const { prompt } = req.body;
+    console.log("Prompt:", prompt);
 
-    // Call Hugging Face's Stable Diffusion model to create an image
-    const response = await axios.post(
-      HUGGING_FACE_API_URL,
-      { inputs: prompt },
-      {
-        headers: {
-          'Authorization': `Bearer ${process.env.HUGGING_FACE_API_KEY}`,
-        },
+    const response = await fetch(HF_API_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${HF_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ inputs: prompt }),
+    });
+
+    // Check if the response is successful
+    if (!response.ok) {
+      throw new Error(`Failed to generate image: ${response.status} ${response.statusText}`);
+    }
+
+    // Get content type of the response
+    const contentType = response.headers.get("content-type");
+
+    if (contentType && contentType.includes("application/json")) {
+      // Handle JSON response
+      const result = await response.json();
+      console.log("API result:", result);
+
+      if (result.photo) {
+        return res.status(200).json({ photo: result.photo });
+      } else {
+        return res.status(500).json({ error: 'No image data received from API' });
       }
-    );
+    } else if (contentType && contentType.includes("image")) {
+      // Handle image response (binary data)
+      const imageArrayBuffer = await response.arrayBuffer();
+      console.log("Image received as binary data");
 
-    // The Hugging Face response will contain a URL to the generated image
-    const imageUrl = response.data[0].generated_image;
+      // Set appropriate content-type for image in the response
+      res.setHeader("Content-Type", contentType);
+      return res.status(200).send(Buffer.from(imageArrayBuffer));  // Send the image directly
+    } else {
+      throw new Error(`Unexpected content type: ${contentType}`);
+    }
 
-    // Send the image URL back to the frontend
-    res.status(200).json({ photo: imageUrl });
   } catch (error) {
-    console.error(error);
-    res.status(500).send(error?.response?.data?.error?.message || 'Something went wrong');
+    console.error('Error:', error);
+    return res.status(500).json({ error: error.message });
   }
 });
+
+
 
 export default router;

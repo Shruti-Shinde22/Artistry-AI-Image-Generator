@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import { preview } from '../assets';
 import { getRandomPrompt } from '../utils';
 import { FormField, Loader } from '../components';
@@ -12,7 +11,6 @@ const CreatePost = () => {
     prompt: '',
     photo: '',
   });
-
   const [generatingImg, setGeneratingImg] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -20,25 +18,36 @@ const CreatePost = () => {
   //   if (form.prompt) {
   //     try {
   //       setGeneratingImg(true);
+
+  //       // POST request to backend to generate image based on prompt
   //       const response = await fetch('http://localhost:8000/api/v1/dalle', {
   //         method: 'POST',
   //         headers: {
   //           'Content-Type': 'application/json',
   //         },
-  //         body: JSON.stringify({
-  //           prompt: form.prompt,
-  //         }),
+  //         body: JSON.stringify({ prompt: form.prompt }),
   //       });
 
-  //       const data = await response.json();
-  //       setForm({ ...form, photo: `data:image/jpeg;base64,${data.photo}` });
+  //       // Check for successful response
+  //       if (!response.ok) {
+  //         throw new Error(`HTTP error! Status: ${response.status}`);
+  //       }
+
+  //       // Handling the response as a blob and converting it to a URL
+  //       const imageBlob = await response.blob();
+  //       const imageUrl = URL.createObjectURL(imageBlob);
+
+  //       // Update form with generated image URL
+  //       setForm({ ...form, photo: imageUrl });
+
   //     } catch (err) {
-  //       alert(err);
+  //       console.error('Error during image generation:', err);
+  //       alert('An error occurred during image generation. Check the console for details.');
   //     } finally {
   //       setGeneratingImg(false);
   //     }
   //   } else {
-  //     alert('Please provide proper prompt');
+  //     alert('Please provide a prompt');
   //   }
   // };
 
@@ -46,6 +55,8 @@ const CreatePost = () => {
     if (form.prompt) {
       try {
         setGeneratingImg(true);
+  
+        // POST request to backend to generate image based on prompt
         const response = await fetch('http://localhost:8000/api/v1/dalle', {
           method: 'POST',
           headers: {
@@ -53,14 +64,17 @@ const CreatePost = () => {
           },
           body: JSON.stringify({ prompt: form.prompt }),
         });
-
+  
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-
-        const data = await response.json();
-        console.log('Response data:', data); // Log server response
-        setForm({ ...form, photo: `data:image/jpeg;base64,${data.photo}` });
+  
+        const imageBlob = await response.blob();
+        const imageUrl = URL.createObjectURL(imageBlob);
+  
+        // Update form with generated image URL
+        setForm({ ...form, photo: imageUrl });
+  
       } catch (err) {
         console.error('Error during image generation:', err);
         alert('An error occurred during image generation. Check the console for details.');
@@ -68,11 +82,10 @@ const CreatePost = () => {
         setGeneratingImg(false);
       }
     } else {
-      alert('Please provide a proper prompt');
+      alert('Please provide a prompt');
     }
-};
-
-
+  };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -90,6 +103,7 @@ const CreatePost = () => {
 
         await response.json();
         navigate('/');
+
       } catch (error) {
         alert(error);
       } finally {
@@ -101,7 +115,7 @@ const CreatePost = () => {
   };
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value }); // Fixed typo here
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSurpriseMe = () => {

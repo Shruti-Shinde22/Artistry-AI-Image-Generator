@@ -3,7 +3,7 @@ import { Card, FormField, Loader } from '../components'
 
 const RenderCards = ({data, title}) =>{
   if(data?.length > 0) {
-    return data.map((post)=> <Card key={post.id} {...post}/>)
+    return data.map((post)=> <Card key={post._id} {...post}/>)
   }
 
   return(
@@ -18,31 +18,32 @@ const Home = () => {
   const [searchedResults, setSearchedResults] = useState(null)
   const [searchTimeout, setSearchTimeout] = useState(null);
 
-  useEffect(()=>{
-    const fetchPosts = async()=>{
+  useEffect(() => {
+    const fetchPosts = async () => {
       setLoading(true);
-
+  
       try {
-        const reponse = await fetch('http://loaclhost:8000/api/v1/posts',{
-          method:'GET',
-          headers:{
-            'Content-Type':'application/json',
+        const response = await fetch('http://localhost:8000/api/v1/posts', {  // Corrected URL
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
           },
-          // body: JSON.stringify
-        })
-
-        if(response.ok){
-          const result=await response.json();
-
+        });
+  
+        if (response.ok) {
+          const result = await response.json();
           setAllPosts(result.data.reverse());
         }
       } catch (error) {
         alert(error);
-      }finally{
+      } finally {
         setLoading(false);
       }
-    }
-  },[])
+    };
+  
+    fetchPosts();
+  }, []);
+  
 
   const handleSearchChange=(e)=>{
     clearTimeout(searchTimeout);

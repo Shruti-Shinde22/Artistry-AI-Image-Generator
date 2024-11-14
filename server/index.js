@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json({limit:'50mb'}));
 
 //api endpoint that we can connect that we can hook onto from our frontend side
-app.use('/api/v1/post',postRoutes);
+app.use('/api/v1/posts',postRoutes);
 app.use('/api/v1/dalle',dalleRoutes);
 
 app.get('/', async(req,res)=>{
